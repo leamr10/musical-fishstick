@@ -41,6 +41,9 @@ function init() {
       else if (response.userChoice === "Add employee") {
         addEmployee();
       }
+      else if (response.userChoice === "Update employee role") {
+        updateRole();
+      }
     });
 
   function viewDepartments() {
@@ -124,7 +127,7 @@ function addEmployee() {
     const roles = results;
     db.query("SELECT id as value, concat(first_name, ' ', last_name) as name from employee", function (err, res) {
       let managers = res;
-      managers = [{value: null, name: "no manager"}, ...managers]
+      managers = [{ value: null, name: "no manager" }, ...managers]
       inquirer.prompt([{
         type: "input",
         name: "firstName",
@@ -152,10 +155,35 @@ function addEmployee() {
           db.query("Insert into employee (first_name, last_name, role_id, manager_id) values (?, ?, ?, ?)", [response.firstName, response.lastName, response.role, response.manager], function (err, res) {
             console.log("New employee added!");
             init();
-          }
-          )
+          })
         }
         )
     })
   })
-}
+};
+
+function updateRole() {
+  db.query("SELECT id as value, title as name FROM role", function (err, results) {
+    const roles = results;
+    db.query("SELECT id as value, concat(first_name, ' ', last_name) as name from employee", function (err, res) {
+      let employees = res;
+      inquirer.prompt([{
+        type: "list",
+        name: "employee",
+        message: "Who is the employee?",
+        choices: employees
+      },
+      {
+        type: "list",
+        name: "role",
+        message: "What new role does the employee have?",
+        choices: roles
+      }])
+      .then(response => {
+        db.query("Update employee SET (role_id) values (?)", [response.role_id, response.employees], function (err, res) {
+          console.log("Employee updated!");
+          init();
+        })
+    })
+  })})
+      };
