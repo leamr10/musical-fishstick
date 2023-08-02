@@ -180,7 +180,7 @@ function updateRole() {
         choices: roles
       }])
       .then(response => {
-        db.query("Update employee SET (role_id) values (?)", [response.role_id, response.employees], function (err, res) {
+        db.query("UPDATE employee SET role_id = (?) WHERE id = (?)", [response.role, response.employee], function (err, res) {
           console.log("Employee updated!");
           init();
         })
